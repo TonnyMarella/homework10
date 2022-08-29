@@ -70,8 +70,12 @@ def main():
             record.edit_contact(start, a.split()[1], a.split()[2:])
             start.add_record()
         elif a.split()[0] == 'delete':
-            record.delete_contact(start, a.split()[1])
-            start.add_record()
+            need_to_delete = ''
+            for key, value in start.date.items():
+                if key == a.split()[1]:
+                    need_to_delete = a.split()[1]
+            if need_to_delete:
+                del start.date[need_to_delete]
         print(start.date)
 
 
