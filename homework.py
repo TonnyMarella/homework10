@@ -62,7 +62,7 @@ def main():
         elif a == 'hello':
             print('How can I help you?')
         elif a == 'show all':
-            print(contacts)
+            print(start.date)
         elif a.split()[0] == 'add':
             record.add_contact(a.split()[1], a.split()[2:])
             start.add_record()
@@ -76,7 +76,6 @@ def main():
                     need_to_delete = a.split()[1]
             if need_to_delete:
                 del start.date[need_to_delete]
-        print(start.date)
 
 
 if __name__ == '__main__':
