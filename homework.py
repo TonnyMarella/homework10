@@ -8,10 +8,9 @@ class Field:
 class AddressBook(UserDict, Field):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.date = {}
 
-    def add_record(self):
-        self.date[Record.name.value] = Record.phone.value
+    def add_record(self, record):
+        self.data[record.name.value] = record
 
 
 class Name(Field):
@@ -20,40 +19,30 @@ class Name(Field):
 
 
 class Phone(Field):
-    def __init__(self, phone=None):
+    def __init__(self, phone):
         self.value = phone
 
 
 class Record(Field):
-    name = None
-    phone = None
+    def __init__(self):
+        self.name = Name
+        self.phone = Phone
 
-    @staticmethod
-    def add_contact(new_name, new_phone=None):
-        Record.name = Name(new_name)
-        Record.phone = Phone(new_phone)
+    def add_contact(self, new_name, new_phone):
+        self.name = self.name(new_name)
+        self.phone = self.phone(new_phone)
 
-    @staticmethod
-    def delete_contact(cls, contact_name):
-        for key, value in cls.date.items():
-            if key == contact_name:
-                Record.name = Name(contact_name)
-                Record.phone = Phone()
-
-    @staticmethod
-    def edit_contact(cls, contact_name, new_phone):
-        for key, value in cls.date.items():
-            if key == contact_name:
-                Record.name = Name(contact_name)
-                Record.phone = Phone(new_phone)
+    def edit_contact(self, cls, contact_name, new_phone):
+        if contact_name in cls.data:
+            self.name = self.name(contact_name)
+            self.phone = self.phone(new_phone)
 
 
 def main():
-    start = AddressBook()
-    record = Record()
+    adressbook = AddressBook()
 
     while True:
-        a = input().lower()
+        a = input('Enter command:\n').lower()
         if a == '.':
             break
         elif a in ("good bye", "close", "exit"):
@@ -61,21 +50,36 @@ def main():
             break
         elif a == 'hello':
             print('How can I help you?')
-        elif a == 'show all':
-            print(start.date)
-        elif a.split()[0] == 'add':
-            record.add_contact(a.split()[1], a.split()[2:])
-            start.add_record()
-        elif a.split()[0] == 'change':
-            record.edit_contact(start, a.split()[1], a.split()[2:])
-            start.add_record()
-        elif a.split()[0] == 'delete':
-            need_to_delete = ''
-            for key, value in start.date.items():
-                if key == a.split()[1]:
-                    need_to_delete = a.split()[1]
-            if need_to_delete:
-                del start.date[need_to_delete]
+        elif a == 'show all':  # Show all contacts
+            print(adressbook.data)
+        elif a == 'show':  # Show one contact
+            name = input('Enter name:\n')
+            print(adressbook.data[name].name.value, 'phone:', adressbook.data[name].phone.value)
+        elif a.split()[0] == 'add':  # Add contact
+            name = input('Enter name:\n')
+            phone = input('Enter phone: \n')
+            if name and phone:
+                record_add = Record()
+                record_add.add_contact(name.lower(), phone.split() if ' ' in phone else [phone])
+                adressbook.add_record(record_add)
+            else:
+                print('Enter correct name and phone')
+        elif a.split()[0] == 'change':  # Add contact number
+            name = input('Enter name:\n')
+            phone = input('Enter phone: \n')
+            try:
+                adressbook.data[name].phone.value.append(phone)
+            except KeyError:
+                print('Wrong name entered')
+        elif a.split()[0] == 'delete':  # Delete contact number
+            name = input('Enter name:\n')
+            phone = input('Enter phone which you want to delete: \n')
+            try:
+                adressbook.data[name].phone.value.remove(phone)
+            except KeyError:
+                print('Wrong name entered')
+            except ValueError:
+                print('The phone number not exist')
 
 
 if __name__ == '__main__':
