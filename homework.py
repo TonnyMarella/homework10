@@ -31,10 +31,10 @@ class Record(Field):
     def add_contact(self, new_phone):
         self.phone.append(Phone(new_phone))
 
-    def edit_contact(self, cls, contact_name, new_phone):
-        if contact_name in cls.data:
-            self.name = self.name(contact_name)
-            self.phone = self.phone(new_phone)
+    def change_phone(self, old_phone, new_phone):
+        for i in range(len(self.phone)):
+            if self.phone[i].value == old_phone[0].value:
+                self.phone[i].value = new_phone
 
 
 def get_name_and_phone():
@@ -42,7 +42,7 @@ def get_name_and_phone():
     To avoid duplication
     """
     name = input('Enter name:\n')
-    phone = input('Enter one phone number: \n')
+    phone = input('Enter phone number: \n')
     return name, phone
 
 
@@ -75,12 +75,24 @@ def main():
                     adressbook.add_record(record_add)
                 else:
                     print('Enter correct name and phone')
-        elif a.split()[0] == 'change':  # Add contact number
+        elif a.split()[0] == 'change_phone':  # Change contact number
             name, phone = get_name_and_phone()
+            new_phone = input('Enter new phone\n')
             try:
                 record_change = adressbook.data[name]
-                record_change.add_contact(phone)
+                old_phone = list(filter(lambda x: x.value == phone, record_change.phone))
+                record_change.change_phone(new_phone=new_phone, old_phone=old_phone)
                 adressbook.add_record(record_change)
+            except KeyError:
+                print('Wrong name entered')
+            except IndexError:
+                print('The phone number not exist')
+        elif a.split()[0] == 'add_phone':  # Add contact number
+            name, phone = get_name_and_phone()
+            try:
+                record_add_phone = adressbook.data[name]
+                record_add_phone.add_contact(phone)
+                adressbook.add_record(record_add_phone)
             except KeyError:
                 print('Wrong name entered')
         elif a.split()[0] == 'delete':  # Delete contact number
