@@ -9,8 +9,7 @@ class AddressBook(UserDict, Field):
     def get_data(self, name):
         if name in self.data.keys():
             return True
-        else:
-            return False
+        return False
 
     def add_record(self, record):
         self.data[record.name.value] = record
