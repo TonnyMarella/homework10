@@ -6,8 +6,11 @@ class Field:
 
 
 class AddressBook(UserDict, Field):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def get_data(self, name):
+        if name in self.data.keys():
+            return True
+        else:
+            return False
 
     def add_record(self, record):
         self.data[record.name.value] = record
@@ -26,15 +29,29 @@ class Phone(Field):
 class Record(Field):
     def __init__(self, new_name):
         self.name = Name(new_name)
-        self.phone = []
+        self.phones = []
 
     def add_contact(self, new_phone):
-        self.phone.append(Phone(new_phone))
+        self.phones.append(Phone(new_phone))
 
     def change_phone(self, old_phone, new_phone):
-        for i in range(len(self.phone)):
-            if self.phone[i].value == old_phone[0].value:
-                self.phone[i].value = new_phone
+        if self.is_exist(old_phone):
+            self.phones.append(Phone(new_phone))
+            self.phones.remove(self.is_exist(old_phone))
+        else:
+            print('The phone number not exist')
+
+    def delete_phone(self, phone):
+        if self.is_exist(phone):
+            self.phones.remove(self.is_exist(phone))
+        else:
+            print('The phone number not exist')
+
+    def is_exist(self, phone):
+        for i in self.phones:
+            if i.value == phone:
+                return i
+        return False
 
 
 def get_name_and_phone():
@@ -62,8 +79,12 @@ def main():
             print(adressbook.data)
         elif a == 'show':  # Show one contact
             name = input('Enter name:\n')
-            print('name:', adressbook.data[name].name.value, 'phone:',
-                  list(map(lambda x: x.value, adressbook.data[name].phone)))
+            if adressbook.get_data(name):
+                print('name:', adressbook.data[name].name.value, 'phone:',
+                      list(map(lambda x: x.value, adressbook.data[name].phones)))
+            else:
+                print('Enter correct name')
+
         elif a.split()[0] == 'add':  # Add contact
             name, phone = get_name_and_phone()
             if len(phone.split()) > 1:
@@ -75,37 +96,31 @@ def main():
                     adressbook.add_record(record_add)
                 else:
                     print('Enter correct name and phone')
+
         elif a.split()[0] == 'change_phone':  # Change contact number
             name, phone = get_name_and_phone()
             new_phone = input('Enter new phone\n')
-            try:
+            if adressbook.get_data(name):
                 record_change = adressbook.data[name]
-                old_phone = list(filter(lambda x: x.value == phone, record_change.phone))
-                record_change.change_phone(new_phone=new_phone, old_phone=old_phone)
-                adressbook.add_record(record_change)
-            except KeyError:
-                print('Wrong name entered')
-            except IndexError:
-                print('The phone number not exist')
+                record_change.change_phone(old_phone=phone, new_phone=new_phone)
+            else:
+                print('Enter correct name')
+
         elif a.split()[0] == 'add_phone':  # Add contact number
             name, phone = get_name_and_phone()
-            try:
+            if adressbook.get_data(name):
                 record_add_phone = adressbook.data[name]
                 record_add_phone.add_contact(phone)
-                adressbook.add_record(record_add_phone)
-            except KeyError:
-                print('Wrong name entered')
+            else:
+                print('Enter correct name')
+
         elif a.split()[0] == 'delete':  # Delete contact number
             name, phone = get_name_and_phone()
-            try:
+            if adressbook.get_data(name):
                 record_delete = adressbook.data[name]
-                need_to_delete = list(filter(lambda x: x.value == phone, record_delete.phone))
-                record_delete.phone.remove(need_to_delete[0])
-                adressbook.add_record(record_delete)
-            except KeyError:
-                print('Wrong name entered')
-            except IndexError:
-                print('The phone number not exist')
+                record_delete.delete_phone(phone)
+            else:
+                print('Enter correct name')
 
 
 if __name__ == '__main__':
